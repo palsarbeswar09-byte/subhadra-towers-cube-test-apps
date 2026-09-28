@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Subhadra Towers - Concrete Cube Test Report V8</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --navy:#17365d; --blue:#245b86; --green:#2f7d4a; --line:#c7d1dc;
+  --bg:#edf2f7; --text:#182230; --muted:#667085; --red:#b42318; --amber:#a15c00;
+  --soft:#f7f9fc; --white:#fff;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+.toolbar{
+  position:sticky;top:0;z-index:50;background:#102a43;padding:9px max(9px,env(safe-area-inset-right)) 9px max(9px,env(safe-area-inset-left));
+  display:flex;gap:7px;overflow-x:auto;box-shadow:0 2px 10px #0003;
+}
+.toolbar button{flex:0 0 auto}
+button{
+  border:0;border-radius:8px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;
+  min-height:42px;touch-action:manipulation
+}
+.btn-main{background:#fff;color:var(--navy)}
+.btn-green{background:#58a642;color:#fff}
+.btn-soft{background:#dce8f4;color:var(--navy)}
+.btn-red{background:#d04444;color:#fff}
+.btn-amber{background:#f0b429;color:#17365d}
+button:disabled{opacity:.45;cursor:not-allowed}
+.sheet{
+  width:min(1000px,96%);margin:16px auto 45px;background:#fff;padding:12mm 11mm;
+  min-height:297mm;box-shadow:0 4px 24px #0002
+}
+.head{text-align:center;border-bottom:3px solid var(--navy);padding-bottom:8px}
+.head h1{margin:0;color:var(--navy);font-size:23px;letter-spacing:.2px}
+.head h2{margin:4px 0 2px;color:var(--blue);font-size:15px}
+.head p{margin:2px;color:#596675;font-size:11px}
+.statusline{
+  margin-top:8px;display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap
+}
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:5px 10px;
+  font-size:10px;font-weight:900;letter-spacing:.3px
+}
+.badge-draft{background:#fff3d6;color:#8a5300}
+.badge-final{background:#e7f4eb;color:#216e3b}
+.section{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:12px}
+.section-title{background:var(--navy);color:#fff;padding:8px 10px;font-size:12px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px}
+.span2{grid-column:span 2}.span4{grid-column:span 4}
+.field{min-width:0}
+label{
+  display:block;font-size:9px;font-weight:800;color:#475467;margin:0 0 4px 1px;
+  text-transform:uppercase;letter-spacing:.15px
+}
+input,select,textarea{
+  width:100%;min-width:0;border:1px solid #b8c3cf;border-radius:7px;padding:9px 10px;
+  min-height:42px;font-size:12px;background:#fff;color:#111827;outline:none
+}
+input:focus,select:focus,textarea:focus{border-color:#5680a5;box-shadow:0 0 0 2px #5680a522}
+input[readonly],select:disabled,textarea:disabled{background:#f2f5f8;color:#4e5968}
+textarea{min-height:58px;resize:vertical}
+.inline{display:flex;gap:6px;align-items:stretch}
+.inline input{flex:1}
+.mini-btn{
+  padding:8px 10px;min-height:42px;border:1px solid #a8b5c3;background:#eaf1f7;color:var(--navy);
+  font-size:10px;border-radius:7px
+}
+.custom-add-wrap{
+  display:none;grid-template-columns:1fr auto;gap:6px;margin-top:6px;padding:7px;
+  border:1px dashed #9fb0c1;border-radius:7px;background:#f7fafc
+}
+.custom-add-wrap.show{display:grid}
+.custom-add-wrap input{min-height:40px}
+.custom-add-wrap .mini-btn{min-width:64px}
+.quickbar{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px;background:#f8fafc;border-bottom:1px solid var(--line)
+}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th,td{border:1px solid #bcc7d2;padding:6px;font-size:10px;text-align:center;vertical-align:middle}
+th{background:#dce8f4;color:var(--navy);font-weight:800}
+td input,td select{padding:6px 5px;min-height:34px;font-size:10px}
+.pass{background:#e9f6ed!important;color:#217a42!important;font-weight:900}
+.fail{background:#fdeceb!important;color:#b42318!important;font-weight:900}
+.pending{background:#fff6e5!important;color:#a15c00!important;font-weight:900}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px}
+.card{border:1px solid var(--line);border-radius:7px;padding:9px;text-align:center;background:#f8fafc}
+.card .k{font-size:8.5px;color:var(--muted);text-transform:uppercase;font-weight:800}
+.card .v{font-size:15px;color:var(--navy);font-weight:900;margin-top:4px}
+.note{padding:8px 10px;background:#f8fafc;border-top:1px solid var(--line);font-size:9px;line-height:1.45;color:#536171}
+.mobile-cards{display:none;padding:8px}
+.cube-card{border:1px solid var(--line);border-radius:8px;padding:9px;margin-bottom:8px;background:#fff}
+.cube-card-title{font-size:11px;font-weight:900;color:var(--navy);margin-bottom:7px}
+.cube-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.signatures{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:10px}
+.sigbox{border:1px solid var(--line);border-radius:7px;padding:8px;background:#fff}
+.sigbox h4{margin:0 0 6px;text-align:center;color:var(--navy);font-size:10px}
+.signature-pad{width:100%;height:90px;border:1px dashed #93a1b0;border-radius:5px;touch-action:none;display:block;background:#fff}
+.sig-actions{text-align:center;margin-top:5px}
+.sig-actions button{padding:4px 8px;min-height:28px;font-size:8px;background:#e6eef6;color:var(--navy)}
+.sig-meta{display:grid;gap:5px;margin-top:5px}
+.sig-meta input{font-size:9px;padding:6px;min-height:34px}
+
+.signatures-two{grid-template-columns:repeat(2,1fr);max-width:760px;margin:0 auto}
+.simple-signature-box{padding:12px 16px 10px;min-height:120px;display:flex;flex-direction:column;justify-content:flex-end}
+.signature-space{height:68px}
+.signature-line{border-top:1px solid #344054;width:100%;margin-top:4px}
+.signature-designation{text-align:center;color:var(--navy);font-size:10px;font-weight:900;padding-top:6px}
+.footer{display:flex;justify-content:space-between;margin-top:12px;border-top:1px solid #ccd5df;padding-top:6px;font-size:8px;color:#667085}
+.lock-banner{
+  display:none;margin-top:10px;border:1px solid #7bb18a;background:#edf8f0;color:#255f36;
+  padding:8px 10px;border-radius:7px;text-align:center;font-size:10px;font-weight:900
+}
+.locked .lock-banner{display:block}
+.locked .editable-control{pointer-events:none}
+.locked .editable-control input:not([readonly]),
+.locked .editable-control select,
+.locked .editable-control textarea{background:#f2f5f8!important;color:#4e5968!important}
+@media(max-width:760px){
+  body{background:#fff}
+  .toolbar{padding:8px;gap:6px}
+  button{min-height:44px;padding:10px 12px;font-size:11px}
+  .sheet{width:100%;margin:0;padding:10px;box-shadow:none;min-height:0}
+  .head h1{font-size:19px}.head h2{font-size:13px}.head p{font-size:10px;line-height:1.35}
+  .section{margin-top:10px;border-radius:7px}
+  .section-title{font-size:11px;padding:8px}
+  .grid,.quickbar{grid-template-columns:1fr;gap:8px;padding:9px}
+  .span2,.span4{grid-column:span 1}
+  input,select,textarea{font-size:16px;min-height:48px;padding:10px 11px}
+  label{font-size:10px;margin-bottom:5px}
+  .inline{gap:7px}
+  .mini-btn{min-height:48px;font-size:11px}
+  .custom-add-wrap{grid-template-columns:1fr auto}
+  .custom-add-wrap input{font-size:16px;min-height:48px}
+  .desktop-table{display:none}
+  .mobile-cards{display:block}
+  .cube-card-grid input,.cube-card-grid select{font-size:15px;min-height:44px}
+  .cards{grid-template-columns:repeat(2,1fr);padding:9px}
+  .card .k{font-size:9px}.card .v{font-size:14px}
+  .signatures{grid-template-columns:1fr;padding:9px}
+  .signatures-two{grid-template-columns:1fr}
+  .simple-signature-box{min-height:110px}
+  .signature-pad{height:120px}
+  .sigbox h4{font-size:11px}
+  .sig-meta input{font-size:15px;min-height:44px}
+  .footer{font-size:7px;gap:6px}
+}
+@page{size:A4 portrait;margin:8mm}
+@media print{
+  body{background:#fff}.toolbar,.no-print,.mobile-cards{display:none!important}
+  .desktop-table{display:block!important}
+  .sheet{width:100%;margin:0;padding:4mm 5mm;box-shadow:none;min-height:auto}
+  .head h1{font-size:18px}.head h2{font-size:12px}.head p{font-size:8px}
+  .statusline{margin-top:4px}.badge{font-size:7px;padding:3px 6px}
+  .section{break-inside:avoid;margin-top:7px}.section-title{font-size:9px;padding:4px 6px}
+  .grid,.quickbar{gap:4px;padding:5px}
+  label{font-size:6.7px}
+  input,select,textarea{border:0;padding:1px 2px;min-height:0;font-size:8px;background:transparent!important;appearance:none;-webkit-appearance:none}
+  th,td{font-size:7.5px;padding:3px}
+  .cards{padding:5px;gap:4px}.card{padding:4px}.card .k{font-size:6.5px}.card .v{font-size:10px}
+  .signature-pad{height:56px;border:0}
+  .sig-meta input{font-size:7px;text-align:center}
+  .sigbox{padding:4px}.signatures{gap:6px;padding:5px}
+  .simple-signature-box{min-height:20mm;padding:3mm 5mm 2mm}
+  .signature-space{height:12mm}
+  .signature-designation{font-size:7px;padding-top:3px}
+  .note{font-size:6.5px;padding:4px 6px}
+  .lock-banner{font-size:7px;padding:4px}
+  .footer{font-size:6.5px}
+}
+
+.pdf-report{
+  display:none;
+  width:190mm;
+  background:#fff;
+  color:#111827;
+  font-family:Arial,Helvetica,sans-serif;
+  padding:7mm 8mm 6mm;
+  box-sizing:border-box;
+}
+.pdf-report .pdf-head{text-align:center;border-bottom:2px solid #17365d;padding-bottom:6px}
+.pdf-report .pdf-head h1{margin:0;color:#17365d;font-size:18px}
+.pdf-report .pdf-head h2{margin:3px 0 0;color:#245b86;font-size:12px}
+.pdf-report .pdf-head p{margin:3px 0 0;font-size:8px;color:#596675}
+.pdf-report .pdf-status{margin:6px 0;text-align:right;font-size:8px;font-weight:800;color:#2f7d4a}
+.pdf-report .pdf-section{margin-top:7px}
+.pdf-report .pdf-section-title{background:#17365d;color:#fff;padding:5px 7px;font-size:9px;font-weight:800}
+.pdf-report .pdf-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #bac6d2;border-top:0}
+.pdf-report .pdf-info-item{padding:4.5px 7px;border-top:1px solid #d3dbe3;font-size:8.2px}
+.pdf-report .pdf-info-item:nth-child(odd){border-right:1px solid #d3dbe3}
+.pdf-report .pdf-info-item b{color:#17365d}
+.pdf-report table{width:100%;border-collapse:collapse;table-layout:fixed}
+.pdf-report th,.pdf-report td{border:1px solid #bac6d2;padding:4px 5px;font-size:8px;text-align:center}
+.pdf-report th{background:#dce8f4;color:#17365d}
+.pdf-report .pdf-summary{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #bac6d2;border-top:0}
+.pdf-report .pdf-summary > div{padding:6px 4px;text-align:center;border-right:1px solid #d3dbe3}
+.pdf-report .pdf-summary > div:last-child{border-right:0}
+.pdf-report .pdf-summary .k{font-size:6.5px;color:#667085;font-weight:800;text-transform:uppercase}
+.pdf-report .pdf-summary .v{font-size:10px;color:#17365d;font-weight:900;margin-top:2px}
+.pdf-report .pdf-remarks{border:1px solid #bac6d2;border-top:0;padding:5px 7px;font-size:8px;min-height:22px}
+.pdf-report .pdf-signatures{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:20mm;margin-top:8mm;align-items:end
+}
+.pdf-report .pdf-signatures-two{max-width:150mm;margin-left:auto;margin-right:auto}
+.pdf-report .physical-sig-space{height:13mm}
+.pdf-report .pdf-sig{
+  text-align:center;font-size:7.5px;color:#344054;min-height:22mm;
+  display:flex;flex-direction:column;justify-content:flex-end
+}
+.pdf-report .pdf-sig img{
+  display:block;margin:0 auto 3px;max-width:42mm;max-height:13mm;object-fit:contain
+}
+.pdf-report .pdf-sig .line{
+  border-top:1px solid #344054;padding-top:4px;min-height:16px;line-height:1.35
+}
+.pdf-report .pdf-sig .sig-name{font-size:8px;font-weight:800;color:#17365d}
+.pdf-report .pdf-sig .sig-designation{font-size:7px;color:#475467}
+.pdf-report .pdf-sig .sig-date{font-size:6.5px;color:#667085;margin-top:1px}
+.pdf-report .pdf-footer{margin-top:10px;border-top:1px solid #cbd5df;padding-top:4px;display:flex;justify-content:space-between;font-size:6.5px;color:#667085}
+
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="btn-green" id="saveBtn" onclick="saveDraft()">Save Draft</button>
+  <button class="btn-soft" id="loadBtn" onclick="loadDraft()">Load Saved</button>
+  <button class="btn-main" id="exportBtn" onclick="finalizeAndExport()">Download Final PDF</button>
+  <button class="btn-amber" id="revisionBtn" onclick="createRevision()" style="display:none">Create Revision</button>
+  <button class="btn-red" id="clearBtn" onclick="clearReport()">New / Clear</button>
+</div>
+
+<div class="sheet editable-control" id="sheet">
+  <div class="head">
+    <h1>CONCRETE CUBE TEST REPORT</h1>
+    <h2>MOTWANI LORDSWAY</h2>
+    <p>Subhadra Towers | Contractor: Build Well Infratech | Consultant: Saanvika Constructionize</p>
+    <div class="statusline">
+      <span id="docStatus" class="badge badge-draft">DRAFT</span>
+      <span id="revisionBadge" class="badge badge-draft" style="display:none"></span>
+    </div>
+  </div>
+
+  <div class="lock-banner" id="lockBanner">
+    FINAL – VERIFIED – LOCKED. Use “Create Revision” if any change is required.
+  </div>
+
+  <div class="section">
+    <div class="section-title">1. Pour & Sample Details</div>
+    <div class="grid">
+      <div class="field"><label>Report / DPR No.</label><input id="reportNo" placeholder="Enter or edit report no."></div>
+      <div class="field"><label>Block</label>
+        <select id="block" class="master-select" data-master="block" data-label="Block / Place" onchange="handleMasterSelect(this)">
+          <option value="">Select</option><option>A1</option><option>A2</option><option>A3</option>
+          <option>A4</option><option>A5</option><option>A6</option><option>A3+A4 / Raft-3</option>
+          <option value="__add__">+ Add New Block / Place</option>
+        </select>
+        <div class="custom-add-wrap" id="blockAddWrap">
+          <input id="blockAddInput" placeholder="Enter new block / place">
+          <button type="button" class="mini-btn" onclick="saveNewMasterOption('block')">Add</button>
+        </div>
+      </div>
+      <div class="field"><label>Location / Floor</label>
+        <select id="location" class="master-select" data-master="location" data-label="Location / Floor" onchange="handleMasterSelect(this)">
+          <option value="">Select</option>
+          <option>Raft</option><option>1st Stilt</option><option>2nd Stilt</option>
+          <option>1st Floor</option><option>2nd Floor</option><option>3rd Floor</option><option>4th Floor</option>
+          <option>5th Floor</option><option>6th Floor</option><option>7th Floor</option><option>8th Floor</option>
+          <option>9th Floor</option><option>10th Floor</option><option>11th Floor</option><option>Terrace</option>
+          <option value="__add__">+ Add New Location / Floor</option>
+        </select>
+        <div class="custom-add-wrap" id="locationAddWrap">
+          <input id="locationAddInput" placeholder="Enter new location / floor">
+          <button type="button" class="mini-btn" onclick="saveNewMasterOption('location')">Add</button>
+        </div>
+      </div>
+      <div class="field"><label>Member</label>
+        <select id="member" class="master-select" data-master="member" data-label="Member / Activity" onchange="handleMasterSelect(this)">
+          <option value="">Select</option><option>Raft</option><option>Column</option><option>Shear Wall</option>
+          <option>Lift / Core Wall</option><option>Beam</option><option>Slab</option><option>Staircase</option>
+          <option>Ramp</option><option>PCC</option>
+          <option value="__add__">+ Add New Member / Activity</option>
+        </select>
+        <div class="custom-add-wrap" id="memberAddWrap">
+          <input id="memberAddInput" placeholder="Enter new member / activity">
+          <button type="button" class="mini-btn" onclick="saveNewMasterOption('member')">Add</button>
+        </div>
+      </div>
+
+      <div class="field"><label>Grade of Concrete</label>
+        <select id="grade" class="master-select" data-master="grade" data-label="Concrete Grade" onchange="handleMasterSelect(this);updateTargetRule()">
+          <option value="">Select Grade</option><option value="M10">M10</option><option value="M20">M20</option>
+          <option value="M25">M25</option><option value="M30">M30</option><option value="M35">M35</option>
+          <option value="M40">M40</option><option value="M45">M45</option><option value="M50">M50</option>
+          <option value="__add__">+ Add New Concrete Grade</option>
+        </select>
+        <div class="custom-add-wrap" id="gradeAddWrap">
+          <input id="gradeAddInput" placeholder="Example: M55">
+          <button type="button" class="mini-btn" onclick="saveNewMasterOption('grade')">Add</button>
+        </div>
+      </div>
+
+      <div class="field"><label>Casting Date (DD-MM-YYYY)</label>
+        <div class="inline">
+          <input id="castingDate" type="text" inputmode="numeric" maxlength="10" placeholder="DD-MM-YYYY" oninput="formatDateInput(this);refreshTestDate()">
+          <button type="button" class="mini-btn no-print" onclick="setToday('castingDate');refreshTestDate()">Today</button>
+        </div>
+      </div>
+
+      <div class="field"><label>Total Qty of Concrete (m³)</label><input id="concreteQty" type="number" step="0.01" min="0" placeholder="Enter total concrete quantity"></div>
+
+      <div class="field"><label>Slump (mm)</label>
+        <select id="slump" class="master-select" data-master="slump" data-label="Slump" onchange="handleMasterSelect(this)">
+          <option value="">Select</option><option>75</option><option>80</option><option>90</option><option>100</option>
+          <option>110</option><option>120</option><option>125</option><option>130</option><option>140</option>
+          <option>150</option><option>160</option><option>180</option><option>200</option>
+          <option value="__add__">+ Add New Slump Value</option>
+        </select>
+        <div class="custom-add-wrap" id="slumpAddWrap">
+          <input id="slumpAddInput" type="number" min="0" step="1" placeholder="Enter slump in mm">
+          <button type="button" class="mini-btn" onclick="saveNewMasterOption('slump')">Add</button>
+        </div>
+      </div>
+
+      <div class="field span2"><label>RMC / Batch / TM No. (Optional)</label><input id="batchNo" placeholder="Enter only when required"></div>
+
+      <div class="field"><label>Cube Size</label>
+        <select id="cubeSize" class="master-select" data-master="cubeSize" data-label="Cube Size" onchange="handleMasterSelect(this);recalculateAll()">
+          <option value="150">150 × 150 × 150 mm</option>
+          <option value="100">100 × 100 × 100 mm</option>
+          <option value="__add__">+ Add New Cube Size</option>
+        </select>
+        <div class="custom-add-wrap" id="cubeSizeAddWrap">
+          <input id="cubeSizeAddInput" type="number" min="1" step="1" placeholder="Cube side in mm, e.g. 200">
+          <button type="button" class="mini-btn" onclick="saveNewMasterOption('cubeSize')">Add</button>
+        </div>
+      </div>
+
+      <div class="field"><label>Testing Machine ID (Optional)</label><input id="machineId" placeholder="Optional"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">2. Quick Test Entry</div>
+    <div class="quickbar">
+      <div class="field"><label>Cube Test Period</label>
+        <select id="testAge" onchange="toggleCustomAge();refreshTestDate();generateSpecimens();updateTargetRule()">
+          <option value="3">3 Days</option>
+          <option value="7">7 Days</option>
+          <option value="14">14 Days</option>
+          <option value="15">15 Days</option>
+          <option value="28" selected>28 Days</option>
+          <option value="56">56 Days</option>
+          <option value="custom">Custom Days</option>
+        </select>
+      </div>
+
+      <div class="field" id="customAgeWrap" style="display:none"><label>Custom Days</label>
+        <input id="customAge" type="number" min="1" step="1" placeholder="Days" oninput="refreshTestDate();generateSpecimens();updateTargetRule()">
+      </div>
+
+      <div class="field"><label>No. of Specimens</label>
+        <select id="specimenCount" onchange="toggleCustomSpecimens();generateSpecimens()">
+          <option value="3" selected>3 Cubes</option>
+          <option value="6">6 Cubes</option>
+          <option value="9">9 Cubes</option>
+          <option value="12">12 Cubes</option>
+          <option value="custom">Custom Specimens</option>
+        </select>
+      </div>
+
+      <div class="field" id="customSpecimenWrap" style="display:none"><label>Custom Specimens</label>
+        <input id="customSpecimens" type="number" min="1" max="30" step="1" placeholder="No." oninput="generateSpecimens()">
+      </div>
+
+      <div class="field"><label>Test Date</label><input id="testDate" readonly placeholder="Auto calculated"></div>
+
+      <div class="field"><label>Acceptance Target (N/mm²)</label>
+        <input id="targetStrength" type="number" step="0.01" min="0" oninput="recalculateAll()" placeholder="Required for Auto status">
+      </div>
+    </div>
+
+    <div class="desktop-table" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:7%">S.No.</th>
+            <th style="width:17%">Cube ID</th>
+            <th style="width:18%">Period</th>
+            <th style="width:16%">Weight (kg)</th>
+            <th style="width:20%">Failure Load (kN)</th>
+            <th style="width:20%">Strength (N/mm²)</th>
+            <th style="width:12%">Status</th>
+          </tr>
+        </thead>
+        <tbody id="cubeBody"></tbody>
+      </table>
+    </div>
+
+    <div class="mobile-cards" id="mobileCubeCards"></div>
+
+    <div class="note">
+      Fast-entry logic: enter the casting date once, select the test period once, and choose the specimen count once.
+      The test date and specimen rows are generated automatically. Enter cube weight and failure load; compressive strength and status are calculated automatically.
+      For 28-day tests, the target is auto-filled from the selected concrete grade; for other test ages, enter the approved acceptance target.
+      Dropdowns marked with “+ Add New” let you create a new item once; it is stored on this device and appears automatically next time.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">3. Test Summary</div>
+    <div class="cards">
+      <div class="card"><div class="k">Specimens Tested</div><div class="v" id="cubeCount">0</div></div>
+      <div class="card"><div class="k">Average Strength</div><div class="v" id="avgStrength">-</div></div>
+      <div class="card"><div class="k">Minimum Strength</div><div class="v" id="minStrength">-</div></div>
+      <div class="card"><div class="k">Overall Status</div><div class="v" id="overallStatus">PENDING</div></div>
+    </div>
+    <div class="grid">
+      <div class="field span4"><label>Remarks / Observation (Optional)</label>
+        <textarea id="remarks" placeholder="Use only for abnormality, failure, retest or special instruction."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">4. Verification</div>
+    <div class="signatures signatures-two">
+      <div class="sigbox simple-signature-box">
+        <div class="signature-space" aria-label="Signature space for QC Incharge"></div>
+        <div class="signature-line"></div>
+        <div class="signature-designation">QC Incharge</div>
+      </div>
+      <div class="sigbox simple-signature-box">
+        <div class="signature-space" aria-label="Signature space for Project Manager"></div>
+        <div class="signature-line"></div>
+        <div class="signature-designation">Project Manager</div>
+      </div>
+    </div>
+    <div class="note">
+      Verification is by physical signature only. No name, date or digital signature entry is required in this report.
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>Concrete Cube Test Report | Build Well Infratech</div>
+    <div>Date format: DD-MM-YYYY</div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "cubeTestReportV2";
+const signatureStates = {};
+let currentRevision = 0;
+let locked = false;
+
+function pad2(n){return String(n).padStart(2,"0")}
+function todayDMY(){const d=new Date();return `${pad2(d.getDate())}-${pad2(d.getMonth()+1)}-${d.getFullYear()}`}
+function setToday(id){document.getElementById(id).value=todayDMY()}
+function formatDateInput(el){
+  let v=el.value.replace(/\D/g,"").slice(0,8);
+  if(v.length>4)v=v.slice(0,2)+"-"+v.slice(2,4)+"-"+v.slice(4);
+  else if(v.length>2)v=v.slice(0,2)+"-"+v.slice(2);
+  el.value=v;
+}
+function parseDMY(v){
+  const m=/^(\d{2})-(\d{2})-(\d{4})$/.exec(v||""); if(!m)return null;
+  const d=new Date(+m[3],+m[2]-1,+m[1]);
+  if(d.getFullYear()!=+m[3]||d.getMonth()!=+m[2]-1||d.getDate()!=+m[1])return null;
+  return d;
+}
+function toDMY(d){return `${pad2(d.getDate())}-${pad2(d.getMonth()+1)}-${d.getFullYear()}`}
+
+
+const MASTER_STORAGE_KEY = "cubeTestReportV2_masterOptions";
+
+function getMasterStore(){
+  try{return JSON.parse(localStorage.getItem(MASTER_STORAGE_KEY)||"{}")}catch(e){return {}}
+}
+function setMasterStore(store){
+  localStorage.setItem(MASTER_STORAGE_KEY,JSON.stringify(store));
+}
+function handleMasterSelect(sel){
+  const key=sel.dataset.master;
+  const wrap=document.getElementById(key+"AddWrap");
+  if(!wrap)return;
+  if(sel.value==="__add__"){
+    wrap.classList.add("show");
+    const inp=document.getElementById(key+"AddInput");
+    if(inp){inp.value="";setTimeout(()=>inp.focus(),50)}
+  }else{
+    wrap.classList.remove("show");
+  }
+}
+function normalizedMasterValue(key,raw){
+  raw=(raw||"").trim();
+  if(!raw)return "";
+  if(key==="grade"){
+    raw=raw.toUpperCase().replace(/\s+/g,"");
+    if(!raw.startsWith("M") && /^\d+(\.\d+)?$/.test(raw)) raw="M"+raw;
+    return raw;
+  }
+  if(key==="cubeSize"){
+    const n=Number(raw);
+    return n>0?String(n):"";
+  }
+  if(key==="slump"){
+    const n=Number(raw);
+    return n>=0?String(n):"";
+  }
+  return raw;
+}
+function optionLabel(key,value){
+  if(key==="cubeSize") return `${value} × ${value} × ${value} mm`;
+  if(key==="grade") return value.toUpperCase();
+  if(key==="slump") return value;
+  return value;
+}
+function addOptionBeforeAddNew(sel,key,value,selected=true){
+  const existing=[...sel.options].find(o=>o.value.toLowerCase()===String(value).toLowerCase());
+  if(existing){if(selected)sel.value=existing.value;return}
+  const addOpt=[...sel.options].find(o=>o.value==="__add__");
+  const opt=document.createElement("option");
+  opt.value=value;opt.textContent=optionLabel(key,value);
+  sel.insertBefore(opt,addOpt||null);
+  if(selected)sel.value=value;
+}
+function saveNewMasterOption(key){
+  const sel=document.getElementById(key),inp=document.getElementById(key+"AddInput"),wrap=document.getElementById(key+"AddWrap");
+  if(!sel||!inp)return;
+  const value=normalizedMasterValue(key,inp.value);
+  if(!value){alert("Please enter a valid new item.");inp.focus();return}
+  addOptionBeforeAddNew(sel,key,value,true);
+  const store=getMasterStore();
+  store[key]=Array.isArray(store[key])?store[key]:[];
+  if(!store[key].some(x=>String(x).toLowerCase()===String(value).toLowerCase())){
+    store[key].push(value);setMasterStore(store);
+  }
+  inp.value="";if(wrap)wrap.classList.remove("show");
+  if(key==="grade")updateTargetRule();
+  if(key==="cubeSize")recalculateAll();
+}
+function loadMasterOptions(){
+  const store=getMasterStore();
+  ["block","location","member","grade","slump","cubeSize"].forEach(key=>{
+    const sel=document.getElementById(key);
+    if(!sel)return;
+    (store[key]||[]).forEach(v=>addOptionBeforeAddNew(sel,key,v,false));
+  });
+}
+
+function getTestDays(){
+  const v=document.getElementById("testAge").value;
+  if(v==="custom")return Number(document.getElementById("customAge").value||0);
+  return Number(v||0);
+}
+function getSpecimenCount(){
+  const v=document.getElementById("specimenCount").value;
+  if(v==="custom")return Math.max(0,Math.min(30,Number(document.getElementById("customSpecimens").value||0)));
+  return Number(v||0);
+}
+function toggleCustomAge(){document.getElementById("customAgeWrap").style.display=document.getElementById("testAge").value==="custom"?"block":"none"}
+function toggleCustomSpecimens(){document.getElementById("customSpecimenWrap").style.display=document.getElementById("specimenCount").value==="custom"?"block":"none"}
+
+function refreshTestDate(){
+  const casting=parseDMY(document.getElementById("castingDate").value),days=getTestDays();
+  if(!casting||!days){document.getElementById("testDate").value="";return}
+  const d=new Date(casting);d.setDate(d.getDate()+days);document.getElementById("testDate").value=toDMY(d);
+  syncPeriods();
+}
+function getGradeStrength(){
+  const sel=document.getElementById("grade");
+  const txt=(sel.value||"").toString();
+  const m=txt.match(/(\d+(?:\.\d+)?)/);
+  return m?Number(m[1]):0;
+}
+function updateTargetRule(){
+  const days=getTestDays(),grade=getGradeStrength();
+  const target=document.getElementById("targetStrength");
+  if(days===28 && grade && (!target.value || target.dataset.auto==="1")){
+    target.value=grade.toFixed(2);target.dataset.auto="1";
+  }else if(days!==28 && target.dataset.auto==="1"){
+    target.value="";target.dataset.auto="0";
+  }
+  recalculateAll();
+}
+document.addEventListener("input",e=>{if(e.target.id==="targetStrength")e.target.dataset.auto="0"});
+
+function loadedArea(){const s=Number(document.getElementById("cubeSize").value||150);return s*s}
+
+function generateSpecimens(){
+  const count=getSpecimenCount(); if(!count)return;
+  const old=[...document.querySelectorAll("#cubeBody tr")].map(r=>({
+    id:r.querySelector(".cubeId").value,
+    weight:r.querySelector(".weight")?r.querySelector(".weight").value:"",
+    load:r.querySelector(".load").value
+  }));
+  const body=document.getElementById("cubeBody");body.innerHTML="";
+  for(let i=0;i<count;i++){
+    const ex=old[i]||{},tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${i+1}</td>
+      <td><input class="cubeId" value="${ex.id||("C-"+pad2(i+1))}"></td>
+      <td><input class="ageText" readonly value="${getTestDays()?getTestDays()+" Days":""}"></td>
+      <td><input class="weight" type="number" step="0.01" min="0" value="${ex.weight||""}" placeholder="kg"></td>
+      <td><input class="load" type="number" step="0.01" min="0" value="${ex.load||""}" oninput="calcRow(this.closest('tr'))" placeholder="kN"></td>
+      <td><input class="strength" readonly></td>
+      <td><input class="statusAuto" readonly value="PENDING"></td>`;
+    body.appendChild(tr);calcRow(tr);
+  }
+  renderMobileCards();
+}
+function syncPeriods(){
+  document.querySelectorAll(".ageText").forEach(x=>x.value=getTestDays()?getTestDays()+" Days":"");
+  renderMobileCards();
+}
+function calcRow(tr){
+  const load=Number(tr.querySelector(".load").value||0);
+  const s=load>0?(load*1000/loadedArea()):0;
+  tr.querySelector(".strength").value=s?s.toFixed(2):"";
+  styleStatus(tr);updateSummary();renderMobileCards();
+}
+function resolvedStatus(tr){
+  const s=Number(tr.querySelector(".strength").value||0),t=Number(document.getElementById("targetStrength").value||0);
+  if(!s||!t)return "PENDING";
+  return s>=t?"PASS":"FAIL";
+}
+function styleStatus(tr){
+  const field=tr.querySelector(".statusAuto"),s=resolvedStatus(tr);
+  field.classList.remove("pass","fail","pending");
+  field.value=s;
+  field.classList.add(s==="PASS"?"pass":s==="FAIL"?"fail":"pending");
+}
+function recalculateAll(){
+  document.querySelectorAll("#cubeBody tr").forEach(r=>{
+    const load=Number(r.querySelector(".load").value||0);
+    const s=load>0?(load*1000/loadedArea()):0;
+    r.querySelector(".strength").value=s?s.toFixed(2):"";
+    styleStatus(r);
+  });
+  updateSummary();renderMobileCards();
+}
+function updateSummary(){
+  const rows=[...document.querySelectorAll("#cubeBody tr")],vals=rows.map(r=>Number(r.querySelector(".strength").value)).filter(v=>v>0);
+  cubeCount.textContent=vals.length;
+  avgStrength.textContent=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2)+" MPa":"-";
+  minStrength.textContent=vals.length?Math.min(...vals).toFixed(2)+" MPa":"-";
+  const sts=rows.map(resolvedStatus),o=overallStatus;o.className="v";
+  if(sts.includes("FAIL")){o.textContent="FAIL / REVIEW";o.classList.add("fail")}
+  else if(sts.length&&sts.every(s=>s==="PASS")){o.textContent="PASS";o.classList.add("pass")}
+  else{o.textContent="PENDING";o.classList.add("pending")}
+}
+function renderMobileCards(){
+  const wrap=document.getElementById("mobileCubeCards");wrap.innerHTML="";
+  [...document.querySelectorAll("#cubeBody tr")].forEach((r,i)=>{
+    const card=document.createElement("div");card.className="cube-card";
+    const id=r.querySelector(".cubeId").value;
+    const weight=r.querySelector(".weight")?r.querySelector(".weight").value:"";
+    const load=r.querySelector(".load").value;
+    const strength=r.querySelector(".strength").value;
+    const status=resolvedStatus(r);
+    card.innerHTML=`<div class="cube-card-title">Specimen ${i+1}</div><div class="cube-card-grid">
+      <div><label>Cube ID</label><input data-row="${i}" data-f="id" value="${id}"></div>
+      <div><label>Period</label><input readonly value="${getTestDays()?getTestDays()+" Days":""}"></div>
+      <div><label>Weight (kg)</label><input data-row="${i}" data-f="weight" type="number" step="0.01" value="${weight}"></div>
+      <div><label>Failure Load (kN)</label><input data-row="${i}" data-f="load" type="number" step="0.01" value="${load}"></div>
+      <div><label>Strength</label><input readonly value="${strength?strength+" N/mm²":""}"></div>
+      <div><label>Status</label><input readonly class="${status==="PASS"?"pass":status==="FAIL"?"fail":"pending"}" value="${status}"></div>
+    </div>`;
+    wrap.appendChild(card);
+  });
+  wrap.querySelectorAll("[data-row]").forEach(el=>{
+    el.addEventListener("input",()=>syncMobileToTable(el));
+    el.addEventListener("change",()=>syncMobileToTable(el));
+  });
+}
+function syncMobileToTable(el){
+  const row=[...document.querySelectorAll("#cubeBody tr")][Number(el.dataset.row)];if(!row)return;
+  if(el.dataset.f==="id")row.querySelector(".cubeId").value=el.value;
+  if(el.dataset.f==="weight")row.querySelector(".weight").value=el.value;
+  if(el.dataset.f==="load"){row.querySelector(".load").value=el.value;calcRow(row)}
+}
+function setupSignaturePad(id){
+  const canvas=document.getElementById(id),ctx=canvas.getContext("2d");
+  function size(){
+    const r=canvas.getBoundingClientRect(),ratio=Math.max(window.devicePixelRatio||1,1);
+    canvas.width=Math.round(r.width*ratio);canvas.height=Math.round(r.height*ratio);
+    ctx.setTransform(ratio,0,0,ratio,0,0);ctx.lineWidth=2;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#111";
+  }
+  size();signatureStates[id]={drawing:false,x:0,y:0};
+  function point(e){const r=canvas.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top}}
+  function start(e){if(locked)return;e.preventDefault();const p=point(e);signatureStates[id]={drawing:true,x:p.x,y:p.y}}
+  function move(e){if(!signatureStates[id].drawing||locked)return;e.preventDefault();const p=point(e);ctx.beginPath();ctx.moveTo(signatureStates[id].x,signatureStates[id].y);ctx.lineTo(p.x,p.y);ctx.stroke();signatureStates[id].x=p.x;signatureStates[id].y=p.y}
+  function end(e){if(e)e.preventDefault();signatureStates[id].drawing=false}
+  canvas.addEventListener("mousedown",start);canvas.addEventListener("mousemove",move);window.addEventListener("mouseup",end);
+  canvas.addEventListener("touchstart",start,{passive:false});canvas.addEventListener("touchmove",move,{passive:false});canvas.addEventListener("touchend",end,{passive:false});
+}
+function clearSignature(id){if(locked)return;const c=document.getElementById(id);c.getContext("2d").clearRect(0,0,c.width,c.height)}
+function isSignatureBlank(id){const c=document.getElementById(id),p=c.getContext("2d").getImageData(0,0,c.width,c.height).data;for(let i=3;i<p.length;i+=4)if(p[i])return false;return true}
+function restoreSignature(id,url){const c=document.getElementById(id),ctx=c.getContext("2d"),img=new Image();img.onload=()=>{const r=c.getBoundingClientRect();ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,r.width,r.height)};img.src=url}
+
+function makeReportNo(){
+  const d=new Date();return `CTR-${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}-${String(Math.floor(Math.random()*900)+100)}`
+}
+function collectData(){
+  const ids=["reportNo","block","location","member","grade","castingDate","concreteQty","slump","batchNo","cubeSize","machineId","testAge","customAge","specimenCount","customSpecimens","testDate","targetStrength","remarks"];
+  const data={};ids.forEach(id=>{
+    const el=document.getElementById(id);
+    data[id]=(el && el.value==="__add__")?"":(el?el.value:"");
+  });
+  data.locked=locked;data.revision=currentRevision;
+  data.cubes=[...document.querySelectorAll("#cubeBody tr")].map(r=>({
+    id:r.querySelector(".cubeId").value,
+    weight:r.querySelector(".weight")?r.querySelector(".weight").value:"",
+    load:r.querySelector(".load").value,
+    strength:r.querySelector(".strength").value,
+    status:resolvedStatus(r)
+  }));
+  return data;
+}
+function applyLockUI(){
+  const sheet=document.getElementById("sheet"),status=document.getElementById("docStatus");
+  sheet.classList.toggle("locked",locked);
+  status.textContent=locked?"FINAL – VERIFIED – LOCKED":"DRAFT";
+  status.className="badge "+(locked?"badge-final":"badge-draft");
+  document.getElementById("saveBtn").disabled=locked;
+  document.getElementById("exportBtn").disabled=locked;
+  document.getElementById("revisionBtn").style.display=locked?"inline-block":"none";
+  document.getElementById("clearBtn").disabled=false;
+  document.getElementById("revisionBadge").style.display=currentRevision>0?"inline-flex":"none";
+  document.getElementById("revisionBadge").textContent=currentRevision>0?`REV-${currentRevision}`:"";
+}
+function saveDraft(){
+  if(locked){alert("This report is FINAL and locked. Create a revision to make changes.");return}
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(collectData()));
+  alert("Draft saved. You can reopen and update it later.");
+}
+function loadDraft(){
+  loadMasterOptions();
+  const raw=localStorage.getItem(STORAGE_KEY);if(!raw){alert("No saved report found.");return}
+  const data=JSON.parse(raw);locked=!!data.locked;currentRevision=Number(data.revision||0);
+  Object.keys(data).forEach(id=>{const el=document.getElementById(id);if(el&&id!=="cubes"&&id!=="signatures"&&id!=="locked"&&id!=="revision")el.value=data[id]??""});
+  toggleCustomAge();toggleCustomSpecimens();generateSpecimens();
+  const rows=[...document.querySelectorAll("#cubeBody tr")];
+  (data.cubes||[]).forEach((c,i)=>{if(!rows[i])return;rows[i].querySelector(".cubeId").value=c.id||"";
+    if(rows[i].querySelector(".weight"))rows[i].querySelector(".weight").value=c.weight||"";
+    rows[i].querySelector(".load").value=c.load||"";
+    calcRow(rows[i])});
+  refreshTestDate();recalculateAll();applyLockUI();
+}
+
+const DESIGNATION_STORAGE_KEY = "cubeTestReportV4_designations";
+
+function getDesignationStore(){
+  try{return JSON.parse(localStorage.getItem(DESIGNATION_STORAGE_KEY)||"[]")}catch(e){return []}
+}
+function setDesignationStore(arr){
+  localStorage.setItem(DESIGNATION_STORAGE_KEY,JSON.stringify(arr))
+}
+function loadDesignationOptions(){
+  const vals=getDesignationStore();
+  ["sig1Designation","sig2Designation","sig3Designation"].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel)return;
+    const add=[...sel.options].find(o=>o.value==="__add__");
+    vals.forEach(v=>{
+      if([...sel.options].some(o=>o.value.toLowerCase()===v.toLowerCase()))return;
+      const opt=document.createElement("option");opt.value=v;opt.textContent=v;
+      sel.insertBefore(opt,add||null);
+    })
+  })
+}
+function handleDesignationSelect(sel){
+  const wrap=document.getElementById(sel.id+"AddWrap");
+  if(!wrap)return;
+  if(sel.value==="__add__"){
+    wrap.classList.add("show");
+    const inp=document.getElementById(sel.id+"AddInput");
+    inp.value="";setTimeout(()=>inp.focus(),50)
+  }else wrap.classList.remove("show");
+}
+function saveDesignationOption(selectId){
+  const sel=document.getElementById(selectId);
+  const inp=document.getElementById(selectId+"AddInput");
+  const wrap=document.getElementById(selectId+"AddWrap");
+  const value=(inp.value||"").trim();
+  if(!value){alert("Enter designation.");inp.focus();return}
+  const add=[...sel.options].find(o=>o.value==="__add__");
+  if(![...sel.options].some(o=>o.value.toLowerCase()===value.toLowerCase())){
+    const opt=document.createElement("option");opt.value=value;opt.textContent=value;sel.insertBefore(opt,add||null);
+    const vals=getDesignationStore();
+    if(!vals.some(x=>x.toLowerCase()===value.toLowerCase())){vals.push(value);setDesignationStore(vals)}
+  }
+  sel.value=[...sel.options].find(o=>o.value.toLowerCase()===value.toLowerCase()).value;
+  inp.value="";wrap.classList.remove("show");
+}
+
+function signatureDataURL(id){
+  const c=document.getElementById(id);
+  return c?c.toDataURL("image/png"):"";
+}
+function cleanValue(v){return (v===undefined||v===null||v==="")?"-":String(v)}
+function buildPdfReport(){
+  const info=[
+    ["Report / DPR No.",reportNo.value],
+    ["Block",block.value],
+    ["Location / Floor",location.value],
+    ["Member",member.value],
+    ["Grade of Concrete",grade.value],
+    ["Total Qty of Concrete",concreteQty.value?concreteQty.value+" m³":"-"],
+    ["Casting Date",castingDate.value],
+    ["Cube Test Period",getTestDays()?getTestDays()+" Days":"-"],
+    ["Test Date",testDate.value],
+    ["Slump",slump.value?slump.value+" mm":"-"],
+    ["RMC / Batch / TM No.",batchNo.value],
+    ["Cube Size",cubeSize.options[cubeSize.selectedIndex]?cubeSize.options[cubeSize.selectedIndex].text:"-"]
+  ];
+  const grid=document.getElementById("pdfInfoGrid");grid.innerHTML="";
+  info.forEach(([k,v])=>{
+    const d=document.createElement("div");d.className="pdf-info-item";
+    d.innerHTML=`<b>${k} -</b> ${cleanValue(v)}`;
+    grid.appendChild(d);
+  });
+
+  const body=document.getElementById("pdfCubeBody");body.innerHTML="";
+  [...document.querySelectorAll("#cubeBody tr")].forEach((r,i)=>{
+    const tr=document.createElement("tr");
+    const status=resolvedStatus(r);
+    tr.innerHTML=`<td>${i+1}</td>
+      <td>${cleanValue(r.querySelector(".cubeId").value)}</td>
+      <td>${getTestDays()?getTestDays()+" Days":"-"}</td>
+      <td>${cleanValue(r.querySelector(".weight").value)}</td>
+      <td>${cleanValue(r.querySelector(".load").value)}</td>
+      <td>${cleanValue(r.querySelector(".strength").value)}</td>
+      <td><b>${status}</b></td>`;
+    body.appendChild(tr);
+  });
+
+  pdfCount.textContent=cubeCount.textContent;
+  pdfAvg.textContent=avgStrength.textContent;
+  pdfMin.textContent=minStrength.textContent;
+  pdfOverall.textContent=overallStatus.textContent;
+  pdfRemarks.innerHTML=`<b>Remarks -</b> ${remarks.value.trim()?remarks.value.trim():"Nil"}`;
+
+  document.getElementById("pdfSig1Designation").textContent="QC Incharge";
+  document.getElementById("pdfSig2Designation").textContent="Project Manager";
+  pdfFooterNo.textContent=`Report No.: ${reportNo.value||"-"}`;
+}
+async function finalizeAndExport(){
+  if(locked){
+    alert("This report is already FINAL and locked.");
+    return;
+  }
+
+  if(typeof html2canvas==="undefined" || !window.jspdf || !window.jspdf.jsPDF){
+    alert("PDF engine is not ready. Please check internet connection, reopen the file and try again.");
+    return;
+  }
+
+  buildPdfReport();
+  const report=document.getElementById("pdfReport");
+  report.style.display="block";
+  report.style.position="fixed";
+  report.style.left="-10000px";
+  report.style.top="0";
+  report.style.zIndex="-1";
+
+  try{
+    // Wait for signature images and layout to fully render before capture.
+    await new Promise(resolve=>setTimeout(resolve,180));
+
+    const canvas=await html2canvas(report,{
+      scale:2.2,
+      backgroundColor:"#ffffff",
+      useCORS:true,
+      logging:false,
+      scrollX:0,
+      scrollY:0,
+      windowWidth:report.scrollWidth,
+      windowHeight:report.scrollHeight
+    });
+
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});
+
+    const pageW=210, pageH=297;
+    const marginX=8, marginY=8;
+    const maxW=pageW-(marginX*2);
+    const maxH=pageH-(marginY*2);
+
+    let imgW=maxW;
+    let imgH=canvas.height*imgW/canvas.width;
+
+    if(imgH>maxH){
+      imgH=maxH;
+      imgW=canvas.width*imgH/canvas.height;
+    }
+
+    const x=(pageW-imgW)/2;
+    const y=marginY;
+    const imgData=canvas.toDataURL("image/jpeg",0.97);
+
+    // Exactly one A4 page is created; no second/blank page can be added.
+    pdf.addImage(imgData,"JPEG",x,y,imgW,imgH,undefined,"FAST");
+
+    const filename=(reportNo.value||"Cube_Test_Report").replace(/[^a-z0-9_-]+/gi,"_")+".pdf";
+    pdf.save(filename);
+
+    // Lock only after successful PDF generation.
+    locked=true;
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(collectData()));
+    applyLockUI();
+
+  }catch(err){
+    console.error("PDF export failed:",err);
+    alert("PDF could not be generated. The report remains editable. Please try again.");
+  }finally{
+    report.style.display="none";
+    report.style.position="";
+    report.style.left="";
+    report.style.top="";
+    report.style.zIndex="";
+  }
+}
+function createRevision(){
+  if(!locked)return;
+  if(!confirm("Create an editable revision of this FINAL report? The revision will require verification again before final export."))return;
+  locked=false;currentRevision++;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(collectData()));applyLockUI();
+  alert(`Revision ${currentRevision} created. The report is editable again.`);
+}
+function clearReport(){
+  if(!confirm("Start a new blank report? The currently saved local report will be replaced only when you save the new draft."))return;
+  locked=false;currentRevision=0;
+  document.querySelectorAll("input,textarea").forEach(el=>{if(!el.readOnly)el.value=""});
+  document.querySelectorAll("select").forEach(el=>el.selectedIndex=0);
+  document.getElementById("testAge").value="28";document.getElementById("specimenCount").value="3";document.getElementById("cubeSize").value="150";
+  document.getElementById("reportNo").value=makeReportNo();document.getElementById("castingDate").value=todayDMY();
+  toggleCustomAge();toggleCustomSpecimens();generateSpecimens();refreshTestDate();applyLockUI();
+}
+
+window.addEventListener("DOMContentLoaded",()=>{
+  loadMasterOptions();
+  document.getElementById("reportNo").value=makeReportNo();
+  document.getElementById("castingDate").value=todayDMY();
+  toggleCustomAge();toggleCustomSpecimens();generateSpecimens();refreshTestDate();applyLockUI();
+});
+</script>
+
+<div id="pdfReport" class="pdf-report">
+  <div class="pdf-head">
+    <h1>CONCRETE CUBE TEST REPORT</h1>
+    <h2>MOTWANI LORDSWAY – SUBHADRA TOWERS</h2>
+    <p>Contractor: Build Well Infratech | Consultant: Saanvika Constructionize</p>
+  </div>
+  <div class="pdf-status" id="pdfStatus">FINAL – VERIFIED</div>
+
+  <div class="pdf-section">
+    <div class="pdf-section-title">POUR & SAMPLE DETAILS</div>
+    <div class="pdf-info-grid" id="pdfInfoGrid"></div>
+  </div>
+
+  <div class="pdf-section">
+    <div class="pdf-section-title">CUBE TEST RESULTS</div>
+    <table>
+      <thead>
+        <tr>
+          <th>S.No.</th><th>Cube ID</th><th>Period</th><th>Weight (kg)</th>
+          <th>Failure Load (kN)</th><th>Strength (N/mm²)</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="pdfCubeBody"></tbody>
+    </table>
+  </div>
+
+  <div class="pdf-section">
+    <div class="pdf-section-title">TEST SUMMARY</div>
+    <div class="pdf-summary">
+      <div><div class="k">Specimens Tested</div><div class="v" id="pdfCount">0</div></div>
+      <div><div class="k">Average Strength</div><div class="v" id="pdfAvg">-</div></div>
+      <div><div class="k">Minimum Strength</div><div class="v" id="pdfMin">-</div></div>
+      <div><div class="k">Overall Status</div><div class="v" id="pdfOverall">PENDING</div></div>
+    </div>
+    <div class="pdf-remarks" id="pdfRemarks"></div>
+  </div>
+
+  <div class="pdf-section" style="margin-top:9px">
+    <div class="pdf-section-title">SIGNATURES & VERIFICATION</div>
+  </div>
+  <div class="pdf-signatures pdf-signatures-two">
+    <div class="pdf-sig physical-sig">
+      <div class="physical-sig-space"></div>
+      <div class="line"><div class="sig-designation" id="pdfSig1Designation">QC Incharge</div></div>
+    </div>
+    <div class="pdf-sig physical-sig">
+      <div class="physical-sig-space"></div>
+      <div class="line"><div class="sig-designation" id="pdfSig2Designation">Project Manager</div></div>
+    </div>
+  </div>
+
+  <div class="pdf-footer">
+    <div>Concrete Cube Test Report</div>
+    <div id="pdfFooterNo"></div>
+  </div>
+</div>
+
+</body>
+</html>

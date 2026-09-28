@@ -225,6 +225,15 @@ td input,td select{padding:6px 5px;min-height:34px;font-size:10px}
 .pdf-report .pdf-footer{margin-top:10px;border-top:1px solid #cbd5df;padding-top:4px;display:flex;justify-content:space-between;font-size:6.5px;color:#667085}
 
 </style>
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#102a43">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cube Test">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
 </head>
 <body>
 
@@ -1007,6 +1016,15 @@ window.addEventListener("DOMContentLoaded",()=>{
     <div id="pdfFooterNo"></div>
   </div>
 </div>
+
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(console.error);
+  });
+}
+</script>
 
 </body>
 </html>
